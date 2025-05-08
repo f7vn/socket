@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const CryptoJS = require('crypto-js');
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
 
 // Получаем порт из переменных окружения или используем 8080 по умолчанию
 const PORT = process.env.PORT || 8080;
@@ -100,7 +101,14 @@ wss.on('connection', function connection(ws, req) {
     // Обработка входящих сообщений
     ws.on('message', function incoming(message) {
         const plainData = message.toString();
+        const now = new Date().toISOString();
+        console.log(`[${now}] [${clientIp}] Получено сообщение: ${plainData}`);
         logData(plainData, 'ПОЛУЧЕНОЕ СООБЩЕНИЕ');
+        // Сохраняем сообщение в файл
+        const logLine = `[${now}] [${clientIp}] ${plainData}\n`;
+        fs.appendFile('messages.log', logLine, (err) => {
+            if (err) console.error('Ошибка записи в лог:', err);
+        });
         // Просто отправляем обратно
         ws.send(plainData);
     });

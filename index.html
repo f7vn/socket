@@ -74,14 +74,14 @@
         <h3>Настройки сервера:</h3>
         <div class="input-group">
             <label for="serverUrl">URL сервера:</label>
-            <input type="text" id="serverUrl" value="ws://localhost:8080" placeholder="Введите URL WebSocket сервера">
+            <input type="text" id="serverUrl" value="wss://websocket-server.onrender.com" placeholder="Введите URL WebSocket сервера">
         </div>
         <button onclick="updateServerUrl()">Обновить URL</button>
     </div>
 
     <div class="server-status">
         <h3>Статус сервера:</h3>
-        <div id="serverUrl">Подключение к: <span id="currentServer">ws://localhost:8080</span></div>
+        <div id="serverUrl">Подключение к: <span id="currentServer">wss://websocket-server.onrender.com</span></div>
         <div id="connectionStatus">Статус: Отключено</div>
     </div>
 

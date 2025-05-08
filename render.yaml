@@ -7,6 +7,19 @@ services:
     envVars:
       - key: SECRET_KEY
         value: your-secret-key-123
+      - key: NODE_ENV
+        value: production
     healthCheckPath: /
     autoDeploy: true
-    plan: free 
+    plan: free
+    # Добавляем настройки для WebSocket
+    headers:
+      - path: /*
+        name: Access-Control-Allow-Origin
+        value: "*"
+      - path: /*
+        name: Access-Control-Allow-Methods
+        value: "GET, POST, OPTIONS"
+      - path: /*
+        name: Access-Control-Allow-Headers
+        value: "Content-Type" 

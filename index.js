@@ -30,11 +30,15 @@ const server = http.createServer((req, res) => {
 // Создаем WebSocket сервер, привязанный к HTTP серверу
 const wss = new WebSocket.Server({ 
     server,
-    // Добавляем проверку origin
+    // Добавляем проверку origin и дополнительные настройки
     verifyClient: (info, callback) => {
         console.log('Попытка подключения от:', info.origin);
-        callback(true); // Разрешаем все подключения
-    }
+        // Разрешаем подключения с любого origin
+        callback(true);
+    },
+    // Добавляем настройки для WSS
+    clientTracking: true,
+    perMessageDeflate: false
 });
 
 console.log(`WebSocket сервер запущен на порту ${PORT}`);
@@ -100,6 +104,20 @@ wss.on('connection', function connection(ws, req) {
     ws.on('error', function error(err) {
         logData(`Ошибка WebSocket: ${err.message}`, 'ERROR');
     });
+});
+
+// Добавляем обработку ошибок сервера
+server.on('error', (error) => {
+    console.error('Ошибка сервера:', error);
+});
+
+// Добавляем обработку необработанных исключений
+process.on('uncaughtException', (error) => {
+    console.error('Необработанное исключение:', error);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Необработанное отклонение промиса:', reason);
 });
 
 // Запускаем сервер

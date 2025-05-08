@@ -146,15 +146,17 @@
         }
 
         function connect() {
-            // Определяем URL сервера
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//websocket-server.onrender.com`;
-            
+            if (ws) {
+                ws.close();
+            }
+
+            const wsUrl = currentServerSpan.textContent;
             ws = new WebSocket(wsUrl);
             
             ws.onopen = function() {
-                updateConnectionStatus(true);
-                console.log('Соединение установлено');
+                addMessage('Статус: Подключено к серверу', 'status');
+                updateConnectionStatus('Подключено', true);
+                reconnectAttempts = 0;
             };
             
             ws.onclose = function() {

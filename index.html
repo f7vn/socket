@@ -156,7 +156,16 @@
             try {
                 ws = new WebSocket(wsUrl);
                 
+                // Добавляем таймаут для подключения
+                const connectionTimeout = setTimeout(() => {
+                    if (ws.readyState !== WebSocket.OPEN) {
+                        console.log('Таймаут подключения');
+                        ws.close();
+                    }
+                }, 5000);
+                
                 ws.onopen = function() {
+                    clearTimeout(connectionTimeout);
                     addMessage('Статус: Подключено к серверу', 'status');
                     updateConnectionStatus('Подключено', true);
                     reconnectAttempts = 0;
@@ -164,15 +173,25 @@
                 };
                 
                 ws.onclose = function(event) {
-                    console.log('WebSocket соединение закрыто:', event.code, event.reason);
+                    clearTimeout(connectionTimeout);
+                    console.log('WebSocket соединение закрыто:', {
+                        code: event.code,
+                        reason: event.reason,
+                        wasClean: event.wasClean
+                    });
                     updateConnectionStatus('Отключено', false);
                     addMessage(`Соединение закрыто (код: ${event.code}, причина: ${event.reason})`, 'status');
                     attemptReconnect();
                 };
                 
                 ws.onerror = function(error) {
-                    console.error('WebSocket ошибка:', error);
-                    addMessage('Ошибка WebSocket: ' + error.message, 'status');
+                    clearTimeout(connectionTimeout);
+                    console.error('WebSocket ошибка:', {
+                        error: error,
+                        readyState: ws.readyState,
+                        url: wsUrl
+                    });
+                    addMessage('Ошибка WebSocket: ' + (error.message || 'Неизвестная ошибка'), 'status');
                     updateConnectionStatus('Ошибка подключения', false);
                 };
                 

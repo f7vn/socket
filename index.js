@@ -10,6 +10,8 @@ const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key-123';
 
 // Создаем HTTP сервер
 const server = http.createServer((req, res) => {
+    console.log('Получен HTTP запрос:', req.method, req.url);
+    
     // Добавляем CORS заголовки
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -30,6 +32,7 @@ const wss = new WebSocket.Server({
     server,
     // Добавляем проверку origin
     verifyClient: (info, callback) => {
+        console.log('Попытка подключения от:', info.origin);
         callback(true); // Разрешаем все подключения
     }
 });
@@ -62,8 +65,9 @@ function logData(data, type) {
 }
 
 // Обработка подключения новых клиентов
-wss.on('connection', function connection(ws) {
-    logData('Новое подключение установлено', 'CONNECTION');
+wss.on('connection', function connection(ws, req) {
+    const clientIp = req.socket.remoteAddress;
+    logData(`Новое подключение установлено от ${clientIp}`, 'CONNECTION');
 
     // Отправляем приветственное сообщение
     ws.send('Добро пожаловать на сервер!');
@@ -88,17 +92,18 @@ wss.on('connection', function connection(ws) {
     });
 
     // Обработка закрытия соединения
-    ws.on('close', function close() {
-        logData('Клиент отключился', 'DISCONNECTION');
+    ws.on('close', function close(code, reason) {
+        logData(`Клиент отключился (код: ${code}, причина: ${reason})`, 'DISCONNECTION');
     });
 
     // Обработка ошибок
     ws.on('error', function error(err) {
-        logData(err.message, 'ERROR');
+        logData(`Ошибка WebSocket: ${err.message}`, 'ERROR');
     });
 });
 
 // Запускаем сервер
 server.listen(PORT, () => {
     console.log(`HTTP сервер запущен на порту ${PORT}`);
+    console.log(`WebSocket сервер доступен по адресу: wss://websocket-server.onrender.com`);
 }); 

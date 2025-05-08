@@ -99,21 +99,10 @@ wss.on('connection', function connection(ws, req) {
 
     // Обработка входящих сообщений
     ws.on('message', function incoming(message) {
-        const encryptedData = message.toString();
-        logData(encryptedData, 'ЗАШИФРОВАННЫЕ ДАННЫЕ');
-        
-        // Расшифровываем данные
-        const decryptedData = decryptData(encryptedData);
-        
-        if (decryptedData) {
-            logData(decryptedData, 'РАСШИФРОВАННЫЕ ДАННЫЕ');
-            
-            // Отправляем расшифрованные данные обратно клиенту
-            ws.send(JSON.stringify(decryptedData));
-        } else {
-            logData('Не удалось расшифровать данные', 'ОШИБКА');
-            ws.send('Ошибка расшифровки данных');
-        }
+        const plainData = message.toString();
+        logData(plainData, 'ПОЛУЧЕНОЕ СООБЩЕНИЕ');
+        // Просто отправляем обратно
+        ws.send(plainData);
     });
 
     // Обработка закрытия соединения

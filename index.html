@@ -155,7 +155,7 @@
             console.log('Попытка подключения к:', wsUrl);
             
             try {
-                ws = new WebSocket(wsUrl, ['websocket']);
+                ws = new WebSocket(wsUrl);
                 
                 // Добавляем таймаут для подключения
                 const connectionTimeout = setTimeout(() => {
@@ -198,10 +198,8 @@
                 
                 ws.onmessage = function(event) {
                     try {
-                        const decryptedData = decryptData(event.data);
-                        const data = JSON.parse(decryptedData);
-                        console.log('Получены данные:', data);
-                        addMessage('Получено (расшифровано): ' + JSON.stringify(data, null, 2), 'decrypted');
+                        // Временно отключаем расшифровку и парсинг JSON для теста
+                        addMessage('Получено: ' + event.data, 'decrypted');
                     } catch (error) {
                         console.error('Ошибка при обработке сообщения:', error);
                         addMessage('Ошибка при обработке сообщения: ' + error.message, 'status');

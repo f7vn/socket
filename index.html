@@ -103,6 +103,7 @@
     </div>
 
     <button onclick="sendMessage()">Отправить</button>
+    <button onclick="downloadLog()">Скачать лог сообщений</button>
 
     <script>
         const messagesDiv = document.getElementById('messages');
@@ -262,6 +263,16 @@
             }
             messagesDiv.appendChild(messageElement);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function downloadLog() {
+            // Получаем базовый адрес сервера (без /ws)
+            let url = currentServerSpan.textContent.replace(/^wss?:/, 'https:');
+            if (url.endsWith('/ws')) {
+                url = url.slice(0, -3);
+            }
+            url += '/download-log';
+            window.open(url, '_blank');
         }
 
         // Подключаемся при загрузке страницы

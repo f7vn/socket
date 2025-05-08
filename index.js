@@ -3,6 +3,7 @@ const CryptoJS = require('crypto-js');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
+const path = require('path');
 
 // Получаем порт из переменных окружения или используем 8080 по умолчанию
 const PORT = process.env.PORT || 8080;
@@ -24,6 +25,23 @@ const server = http.createServer((req, res) => {
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         res.end();
+        return;
+    }
+
+    if (req.method === 'GET' && req.url === '/download-log') {
+        const logPath = path.join(__dirname, 'messages.log');
+        fs.access(logPath, fs.constants.F_OK, (err) => {
+            if (err) {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.end('Log file not found');
+                return;
+            }
+            res.writeHead(200, {
+                'Content-Type': 'text/plain',
+                'Content-Disposition': 'attachment; filename="messages.log"'
+            });
+            fs.createReadStream(logPath).pipe(res);
+        });
         return;
     }
 

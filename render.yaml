@@ -6,4 +6,7 @@ services:
     startCommand: node index.js
     envVars:
       - key: SECRET_KEY
-        value: your-secret-key-123 
+        value: your-secret-key-123
+    healthCheckPath: /
+    autoDeploy: true
+    plan: free 

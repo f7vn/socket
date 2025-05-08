@@ -22,10 +22,18 @@ services:
         value: "GET, POST, OPTIONS"
       - path: /*
         name: Access-Control-Allow-Headers
-        value: "Content-Type"
+        value: "Content-Type, Upgrade, Connection"
+      - path: /*
+        name: Access-Control-Allow-Credentials
+        value: "true"
       - path: /*
         name: Upgrade
         value: "websocket"
       - path: /*
         name: Connection
-        value: "Upgrade" 
+        value: "Upgrade"
+    # Добавляем настройки для WebSocket
+    routes:
+      - type: rewrite
+        source: /*
+        destination: / 

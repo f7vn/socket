@@ -154,7 +154,7 @@
             console.log('Попытка подключения к:', wsUrl);
             
             try {
-                ws = new WebSocket(wsUrl);
+                ws = new WebSocket(wsUrl, ['websocket']);
                 
                 // Добавляем таймаут для подключения
                 const connectionTimeout = setTimeout(() => {

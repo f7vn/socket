@@ -1,6 +1,7 @@
 const WebSocket = require('ws');
 const CryptoJS = require('crypto-js');
 const http = require('http');
+const https = require('https');
 
 // Получаем порт из переменных окружения или используем 8080 по умолчанию
 const PORT = process.env.PORT || 8080;
@@ -11,11 +12,13 @@ const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key-123';
 // Создаем HTTP сервер
 const server = http.createServer((req, res) => {
     console.log('Получен HTTP запрос:', req.method, req.url);
+    console.log('Заголовки запроса:', req.headers);
     
     // Добавляем CORS заголовки
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Upgrade, Connection');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
@@ -39,7 +42,12 @@ const wss = new WebSocket.Server({
     },
     // Добавляем настройки для WSS
     clientTracking: true,
-    perMessageDeflate: false
+    perMessageDeflate: false,
+    // Добавляем обработку ошибок
+    handleProtocols: (protocols, req) => {
+        console.log('Запрошенные протоколы:', protocols);
+        return protocols[0];
+    }
 });
 
 // Добавляем логирование при создании сервера

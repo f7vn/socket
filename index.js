@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const CryptoJS = require('crypto-js');
+const http = require('http');
 
 // Получаем порт из переменных окружения или используем 8080 по умолчанию
 const PORT = process.env.PORT || 8080;
@@ -7,8 +8,14 @@ const PORT = process.env.PORT || 8080;
 // Секретный ключ для расшифровки (должен совпадать с ключом на клиенте)
 const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key-123';
 
-// Создаем WebSocket сервер
-const wss = new WebSocket.Server({ port: PORT });
+// Создаем HTTP сервер
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('WebSocket сервер работает');
+});
+
+// Создаем WebSocket сервер, привязанный к HTTP серверу
+const wss = new WebSocket.Server({ server });
 
 console.log(`WebSocket сервер запущен на порту ${PORT}`);
 
@@ -72,4 +79,9 @@ wss.on('connection', function connection(ws) {
     ws.on('error', function error(err) {
         logData(err.message, 'ERROR');
     });
+});
+
+// Запускаем сервер
+server.listen(PORT, () => {
+    console.log(`HTTP сервер запущен на порту ${PORT}`);
 }); 

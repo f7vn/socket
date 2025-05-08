@@ -22,4 +22,10 @@ services:
         value: "GET, POST, OPTIONS"
       - path: /*
         name: Access-Control-Allow-Headers
-        value: "Content-Type" 
+        value: "Content-Type"
+      - path: /*
+        name: Upgrade
+        value: "websocket"
+      - path: /*
+        name: Connection
+        value: "Upgrade" 

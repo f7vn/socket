@@ -33,12 +33,24 @@ const wss = new WebSocket.Server({
     // Добавляем проверку origin и дополнительные настройки
     verifyClient: (info, callback) => {
         console.log('Попытка подключения от:', info.origin);
+        console.log('Заголовки запроса:', info.req.headers);
         // Разрешаем подключения с любого origin
         callback(true);
     },
     // Добавляем настройки для WSS
     clientTracking: true,
     perMessageDeflate: false
+});
+
+// Добавляем логирование при создании сервера
+wss.on('listening', () => {
+    console.log('WebSocket сервер слушает подключения');
+    console.log('Настройки сервера:', {
+        port: PORT,
+        path: wss.options.path,
+        clientTracking: wss.options.clientTracking,
+        perMessageDeflate: wss.options.perMessageDeflate
+    });
 });
 
 console.log(`WebSocket сервер запущен на порту ${PORT}`);

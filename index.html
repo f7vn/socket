@@ -150,7 +150,20 @@
                 ws.close();
             }
 
-            const wsUrl = currentServerSpan.textContent;
+            // Меняем путь на /ws для Render
+            let wsUrl = currentServerSpan.textContent;
+            try {
+                const urlObj = new URL(wsUrl);
+                urlObj.pathname = '/ws';
+                wsUrl = urlObj.toString();
+            } catch (e) {
+                // fallback если URL некорректный
+                if (wsUrl.endsWith('/')) {
+                    wsUrl += 'ws';
+                } else {
+                    wsUrl += '/ws';
+                }
+            }
             console.log('Попытка подключения к:', wsUrl);
             
             try {

@@ -33,6 +33,7 @@ const server = http.createServer((req, res) => {
 // Создаем WebSocket сервер, привязанный к HTTP серверу
 const wss = new WebSocket.Server({ 
     server,
+    path: '/ws',
     // Добавляем проверку origin и дополнительные настройки
     verifyClient: (info, callback) => {
         console.log('Попытка подключения от:', info.origin);

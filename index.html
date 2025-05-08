@@ -140,38 +140,46 @@
             return encrypted;
         }
 
+        function decryptData(encryptedData) {
+            const decrypted = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY).toString(CryptoJS.enc.Utf8);
+            return decrypted;
+        }
+
         function connect() {
-            if (ws) {
-                ws.close();
-            }
-
-            const wsUrl = currentServerSpan.textContent;
+            // Определяем URL сервера
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//websocket-server.onrender.com`;
+            
             ws = new WebSocket(wsUrl);
-
+            
             ws.onopen = function() {
-                addMessage('Статус: Подключено к серверу', 'status');
-                updateConnectionStatus('Подключено', true);
-                reconnectAttempts = 0;
+                updateConnectionStatus(true);
+                console.log('Соединение установлено');
             };
-
-            ws.onmessage = function(event) {
-                try {
-                    const decryptedData = JSON.parse(event.data);
-                    addMessage('Получено (расшифровано): ' + JSON.stringify(decryptedData, null, 2), 'decrypted');
-                } catch (e) {
-                    addMessage('Получено: ' + event.data);
-                }
-            };
-
+            
             ws.onclose = function() {
-                addMessage('Статус: Отключено от сервера', 'status');
-                updateConnectionStatus('Отключено', false);
+                updateConnectionStatus(false);
+                console.log('Соединение закрыто');
                 attemptReconnect();
             };
-
+            
             ws.onerror = function(error) {
-                addMessage('Ошибка: ' + error.message, 'status');
-                updateConnectionStatus('Ошибка подключения', false);
+                console.error('WebSocket ошибка:', error);
+                updateConnectionStatus(false);
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const decryptedData = decryptData(event.data);
+                    const data = JSON.parse(decryptedData);
+                    console.log('Получены данные:', data);
+                    
+                    // Обновляем статус сервера
+                    document.getElementById('serverStatus').textContent = 
+                        `Сервер: ${wsUrl} | Статус: Подключено`;
+                } catch (error) {
+                    console.error('Ошибка при обработке сообщения:', error);
+                }
             };
         }
 

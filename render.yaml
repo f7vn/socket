@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: websocket-server
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: SECRET_KEY
+        value: your-secret-key-123 

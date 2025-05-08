@@ -151,38 +151,46 @@
             }
 
             const wsUrl = currentServerSpan.textContent;
-            ws = new WebSocket(wsUrl);
+            console.log('Попытка подключения к:', wsUrl);
             
-            ws.onopen = function() {
-                addMessage('Статус: Подключено к серверу', 'status');
-                updateConnectionStatus('Подключено', true);
-                reconnectAttempts = 0;
-            };
-            
-            ws.onclose = function() {
-                updateConnectionStatus(false);
-                console.log('Соединение закрыто');
-                attemptReconnect();
-            };
-            
-            ws.onerror = function(error) {
-                console.error('WebSocket ошибка:', error);
-                updateConnectionStatus(false);
-            };
-            
-            ws.onmessage = function(event) {
-                try {
-                    const decryptedData = decryptData(event.data);
-                    const data = JSON.parse(decryptedData);
-                    console.log('Получены данные:', data);
-                    
-                    // Обновляем статус сервера
-                    document.getElementById('serverStatus').textContent = 
-                        `Сервер: ${wsUrl} | Статус: Подключено`;
-                } catch (error) {
-                    console.error('Ошибка при обработке сообщения:', error);
-                }
-            };
+            try {
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = function() {
+                    addMessage('Статус: Подключено к серверу', 'status');
+                    updateConnectionStatus('Подключено', true);
+                    reconnectAttempts = 0;
+                    console.log('WebSocket соединение установлено');
+                };
+                
+                ws.onclose = function(event) {
+                    console.log('WebSocket соединение закрыто:', event.code, event.reason);
+                    updateConnectionStatus('Отключено', false);
+                    addMessage(`Соединение закрыто (код: ${event.code}, причина: ${event.reason})`, 'status');
+                    attemptReconnect();
+                };
+                
+                ws.onerror = function(error) {
+                    console.error('WebSocket ошибка:', error);
+                    addMessage('Ошибка WebSocket: ' + error.message, 'status');
+                    updateConnectionStatus('Ошибка подключения', false);
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const decryptedData = decryptData(event.data);
+                        const data = JSON.parse(decryptedData);
+                        console.log('Получены данные:', data);
+                        addMessage('Получено (расшифровано): ' + JSON.stringify(data, null, 2), 'decrypted');
+                    } catch (error) {
+                        console.error('Ошибка при обработке сообщения:', error);
+                        addMessage('Ошибка при обработке сообщения: ' + error.message, 'status');
+                    }
+                };
+            } catch (error) {
+                console.error('Ошибка при создании WebSocket:', error);
+                addMessage('Ошибка при создании WebSocket: ' + error.message, 'status');
+            }
         }
 
         function attemptReconnect() {

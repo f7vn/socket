@@ -10,12 +10,29 @@ const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key-123';
 
 // Создаем HTTP сервер
 const server = http.createServer((req, res) => {
+    // Добавляем CORS заголовки
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('WebSocket сервер работает');
 });
 
 // Создаем WebSocket сервер, привязанный к HTTP серверу
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ 
+    server,
+    // Добавляем проверку origin
+    verifyClient: (info, callback) => {
+        callback(true); // Разрешаем все подключения
+    }
+});
 
 console.log(`WebSocket сервер запущен на порту ${PORT}`);
 
